@@ -72,7 +72,17 @@ def test_signup_duplicate_participant(client):
     # Try to sign up the same participant twice
     first_response = client.post("/activities/Chess%20Club/signup?email=duplicate@mergington.edu")
     assert first_response.status_code == 200
-    
+    first_data = first_response.json()
+    assert "message" in first_data
+    assert "duplicate@mergington.edu" in first_data["message"]
+
+    # Verify participant was actually added before testing duplicate signup
+    activities_response = client.get("/activities")
+    assert activities_response.status_code == 200
+    activities_data = activities_response.json()
+    assert "Chess Club" in activities_data
+    assert "participants" in activities_data["Chess Club"]
+    assert "duplicate@mergington.edu" in activities_data["Chess Club"]["participants"]
     response = client.post(
         "/activities/Chess%20Club/signup?email=duplicate@mergington.edu"
     )
