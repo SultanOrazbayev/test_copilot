@@ -7,17 +7,14 @@ from fastapi.testclient import TestClient
 from app import app
 
 
-client = TestClient(app)
-
-
-def test_root_redirect():
+def test_root_redirect(client):
     """Test that root redirects to static/index.html"""
     response = client.get("/", follow_redirects=False)
     assert response.status_code == 307
     assert response.headers["location"] == "/static/index.html"
 
 
-def test_get_activities():
+def test_get_activities(client):
     """Test that activities endpoint returns all activities"""
     response = client.get("/activities")
     assert response.status_code == 200
@@ -37,7 +34,7 @@ def test_get_activities():
         assert isinstance(data[activity]["participants"], list)
 
 
-def test_get_activities_chess_club():
+def test_get_activities_chess_club(client):
     """Test specific activity details"""
     response = client.get("/activities")
     data = response.json()
@@ -48,7 +45,7 @@ def test_get_activities_chess_club():
     assert "daniel@mergington.edu" in chess_club["participants"]
 
 
-def test_signup_for_activity():
+def test_signup_for_activity(client):
     """Test signing up a new participant for an activity"""
     # Get initial state
     response = client.get("/activities")
@@ -70,7 +67,7 @@ def test_signup_for_activity():
     assert "test@mergington.edu" in response.json()["Programming Class"]["participants"]
 
 
-def test_signup_duplicate_participant():
+def test_signup_duplicate_participant(client):
     """Test that signing up twice for same activity fails"""
     # Try to sign up the same participant twice
     client.post("/activities/Chess%20Club/signup?email=duplicate@mergington.edu")
@@ -83,7 +80,7 @@ def test_signup_duplicate_participant():
     assert "already signed up" in data["detail"]
 
 
-def test_signup_nonexistent_activity():
+def test_signup_nonexistent_activity(client):
     """Test signing up for a non-existent activity"""
     response = client.post(
         "/activities/Nonexistent%20Activity/signup?email=test@mergington.edu"
@@ -93,7 +90,7 @@ def test_signup_nonexistent_activity():
     assert "Activity not found" in data["detail"]
 
 
-def test_unregister_participant():
+def test_unregister_participant(client):
     """Test unregistering a participant from an activity"""
     email = "unregister_test@mergington.edu"
     
@@ -115,7 +112,7 @@ def test_unregister_participant():
     assert email not in response.json()["Chess Club"]["participants"]
 
 
-def test_unregister_nonexistent_participant():
+def test_unregister_nonexistent_participant(client):
     """Test unregistering a participant not registered for an activity"""
     response = client.delete(
         "/activities/Chess%20Club/unregister?email=notregistered@mergington.edu"
@@ -125,7 +122,7 @@ def test_unregister_nonexistent_participant():
     assert "not registered" in data["detail"]
 
 
-def test_unregister_nonexistent_activity():
+def test_unregister_nonexistent_activity(client):
     """Test unregistering from a non-existent activity"""
     response = client.delete(
         "/activities/Nonexistent%20Activity/unregister?email=test@mergington.edu"
