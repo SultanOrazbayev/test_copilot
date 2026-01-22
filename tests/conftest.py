@@ -13,12 +13,3 @@ from app import app
 def client():
     """Create a test client for the FastAPI app"""
     return TestClient(app)
-
-
-@pytest.fixture
-def reset_activities(client):
-    """Reset activities to known state before each test"""
-    # This is a fixture that can be used in tests to ensure clean state
-    yield
-    # Teardown: Reset activities after test
-    # Note: In a real app, you'd have a proper database with transaction rollback
