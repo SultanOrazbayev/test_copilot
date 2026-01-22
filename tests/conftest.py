@@ -17,11 +17,4 @@ def client():
     # is reset for each test, ensuring test isolation.
     reloaded_app_module = importlib.reload(app_module)
 
-    # If the app module exposes a global activities dict, clear it defensively
-    # to avoid any cross-test contamination even if reload behavior changes.
-    if hasattr(reloaded_app_module, "activities") and isinstance(
-        reloaded_app_module.activities, dict
-    ):
-        reloaded_app_module.activities.clear()
-
     return TestClient(reloaded_app_module.app)
