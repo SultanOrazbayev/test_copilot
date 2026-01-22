@@ -9,7 +9,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from app import app, activities
 
-# Store the original activities state for test isolation
+# Store the original activities state for test isolation.
+# This is captured at module import time, after app module is loaded.
 _ORIGINAL_ACTIVITIES = deepcopy(activities)
 
 
@@ -17,7 +18,9 @@ _ORIGINAL_ACTIVITIES = deepcopy(activities)
 def client():
     """Create a test client for the FastAPI app with isolated state per test."""
     # Reset activities dict to original state using deepcopy for each test,
-    # ensuring test isolation without fragile module reloading
+    # ensuring test isolation without fragile module reloading.
+    # Deepcopy is necessary because activities contains nested mutable structures
+    # (lists of participants) that tests modify.
     activities.clear()
     activities.update(deepcopy(_ORIGINAL_ACTIVITIES))
     
