@@ -73,7 +73,8 @@ def test_signup_for_activity():
 def test_signup_duplicate_participant():
     """Test that signing up twice for same activity fails"""
     # Try to sign up the same participant twice
-    client.post("/activities/Chess%20Club/signup?email=duplicate@mergington.edu")
+    first_response = client.post("/activities/Chess%20Club/signup?email=duplicate@mergington.edu")
+    assert first_response.status_code == 200
     
     response = client.post(
         "/activities/Chess%20Club/signup?email=duplicate@mergington.edu"
